@@ -33,8 +33,10 @@ def search():
     desc_search += '%'
     #print(desc_search)
     sql = "Select * from Ornaments where \"Description\" like %s"
+    global current_sql_statement 
     current_sql_statement = sql
     args = [desc_search]
+    global current_args 
     current_args = args
     cur.execute(sql, args)
     rows = cur.fetchall()
@@ -95,11 +97,9 @@ def delete_records():
     cur.execute(sql)
     
     cur.execute(current_sql_statement, current_args)
-    #need to test above statement
-    
-    
-    #rows = cur.fetchall()
-    #window['-TABLE-'].Update(values=rows)
+    rows = cur.fetchall()
+    window['-TABLE-'].Update(values=rows)
+        
     con.commit()
     con.close
     #print(rows)
@@ -112,8 +112,10 @@ con = psycopg2.connect(
 
 cur = con.cursor()
 
-current_sql_statement = "select * from Ornaments" #variable to hold current statement
-current_args = ""
+global current_sql_statement 
+current_sql_statement = "select * from Ornaments order by \"Year\"" #variable to hold current statement
+global current_args 
+current_args =  ""
 
 cur.execute(current_sql_statement)
 
