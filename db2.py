@@ -38,7 +38,7 @@ def search():
     args = [desc_search]
     global current_args 
     current_args = args
-    cur.execute(sql, args)
+    cur.execute(sql + "order by \"Year\"", args)
     rows = cur.fetchall()
     window['-TABLE-'].Update(values=rows)
     con.commit()
@@ -59,7 +59,7 @@ def delete_popup(title, text):
         ])
 
     while True:
-      event,values = window.read()
+      event = window.read()
       if event == ui.WIN_CLOSED or event == 'No': # if user closes window or clicks cancel
         window.close()
         break
@@ -102,8 +102,72 @@ def delete_records():
         
     con.commit()
     con.close
-    #print(rows)
-#connect to db
+
+#build update function
+def update_records():
+    con = psycopg2.connect(
+    database = "Ornaments",
+    user = "postgres",
+    password = "Erj020912"
+    )
+
+    cur = con.cursor()
+    
+    row_index = 0
+    for num in values['-TABLE-']:
+        row_index = num 
+    # Returns nested list of all Table rows
+    all_table_vals = window.element('-TABLE-').get()
+
+        # Index the selected row 
+    selected_row = all_table_vals[row_index]
+    #print(selected_row)
+
+    # [0] to Index the goal_name of my selected Row
+    upc_to_update = selected_row[0]
+    if year.get() =="":
+        year_sql = ""
+    else:
+        year_sql = "\"Year\" = {}".format(year.get())
+
+    if series.get() =="":
+        series_sql = ""
+    else:
+        series_sql = ",\"Series\" = %s",(series.get())  
+
+    if description.get() =="":
+        description_sql = ""
+    else:
+        description_sql = ",\"Description\" = {}".format(description.get())  
+
+    if quantity.get() =="":
+        quantity_sql = ""
+    else:
+        quantity_sql = ",\"Quantity\" = {}".format(quantity.get())
+    print(quantity_sql)
+
+    if notes.get() =="":
+        notes_sql = ""
+    else:
+        notes_sql = ",\"Notes\" = %s",(notes.get())    
+      
+    sql = "Update Ornaments "
+    set_sql = year_sql + series_sql + description_sql + quantity_sql + notes_sql
+    set_sql = set_sql.lstrip(',')
+    print(set_sql)
+    set_sql = "set " + set_sql
+    where_sql =  " where \"upc_code\" = '" + upc_to_update + "'"
+    print(sql + set_sql + where_sql)
+    cur.execute(sql + set_sql + where_sql)
+    
+    cur.execute(current_sql_statement, current_args)
+    rows = cur.fetchall()
+    window['-TABLE-'].Update(values=rows)
+        
+    con.commit()
+    con.close
+
+
 con = psycopg2.connect(
     database = "Ornaments",
     user = "postgres",
@@ -157,8 +221,8 @@ data = ("UPC")
 headings = ['UPC','Series','Year','Description','Quantity','Notes']
 layout = [[ui.Column(col_1), ui.Column(col_2)],
            # [ui.Listbox(values=new_rows, size=(80,20))],
-           [ui.Table(values=rows, headings=headings,col_widths=[15,15,5,50,10,50],def_col_width=20,justification='center',auto_size_columns=False,key='-TABLE-')],
-            [ui.Button("Previous"),ui.Button("Add"), ui.Button("Delete"), ui.Button("Update"), ui.Button("Next"), ui.Button("Search")]]
+           [ui.Table(values=rows, headings=headings,col_widths=[15,15,5,50,10,50],def_col_width=20,justification='center',auto_size_columns=False,num_rows=40,key='-TABLE-')],
+            [ui.Button("Add"), ui.Button("Delete"), ui.Button("Update"), ui.Button("Search"), ui.Button("Exit")]]
 # Create the window
 window = ui.Window('Ornament Tracker', layout, finalize=True, size=(1400,1000))
 
@@ -169,7 +233,7 @@ while True:
     event, values = window.read()
     # End program if user closes window or
     # presses the OK button
-    if  event == ui.WIN_CLOSED:
+    if  event == ui.WIN_CLOSED or event == 'Exit':
         break
     '''if event == '+FOCUS IN+':
         window['-IN-'].update('')
@@ -180,6 +244,8 @@ while True:
         search()
     if event == 'Delete':
         delete_records()
+    if event == 'Update':
+        update_records()
         
     
 window.close()
