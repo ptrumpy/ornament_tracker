@@ -29,13 +29,16 @@ def search():
 
     cur = con.cursor()
     desc_search = "%"
-    desc_search += description.get()
+    desc_search += description.get().lower()
     desc_search += '%'
+    series_search  = '%'
+    series_search += series.get().lower()
+    series_search += '%'
     #print(desc_search)
-    sql = "Select * from Ornaments where \"Description\" like %s"
+    sql = "Select * from Ornaments where lower(\"Description\") like %s"
     global current_sql_statement 
     current_sql_statement = sql
-    args = [desc_search]
+    args = [desc_search, series_search]
     global current_args 
     current_args = args
     cur.execute(sql + "order by \"Year\"", args)
