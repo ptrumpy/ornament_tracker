@@ -24,24 +24,50 @@ def search():
     con = psycopg2.connect(
     database = "Ornaments",
     user = "postgres",
-    password = "Erj020912"
+    password = "Erj020912",
+    host = "192.168.4.28",
+    port = "5432"
     )
 
     cur = con.cursor()
-    desc_search = "%"
-    desc_search += description.get().lower()
-    desc_search += '%'
-    series_search  = '%'
-    series_search += series.get().lower()
-    series_search += '%'
-    #print(desc_search)
-    sql = "Select * from Ornaments where lower(\"Description\") like %s"
+    if len(description.get())>0:
+        search_sql = "lower(\"Description\") like %s "
+        desc_search = "%"
+        desc_search += description.get().lower()
+        desc_search += '%'
+        where_list = [search_sql]
+        where_search = [desc_search]
+    if len(series.get())>0:
+        series_sql = "lower(\"Series\") like %s "
+        series_search  = '%'
+        series_search += series.get().lower()
+        series_search += '%'
+        where_list.append(series_sql)
+        where_search.append(series_search)
+    if len(year.get())>0:
+        year_sql = "\"Year\" = %s "
+        year_search = year.get()
+        where_list.append(year_sql)
+        where_search.append(year_search)
+    if len(quantity.get())>0:
+        qty_sql = "\"Quantity\" = %s "
+        qty_search = quantity.get()
+        where_list.append(qty_sql)
+        where_search.append(qty_search)
+ 
+     
+
+    s = "and "
+    where_sql = s.join(where_list)
+    #print(where_sql)
+    #print(where_search)
+    sql = "Select * from Ornaments where " + where_sql
+    sql += "order by \"Year\""
     global current_sql_statement 
     current_sql_statement = sql
-    args = [desc_search, series_search]
-    global current_args 
-    current_args = args
-    cur.execute(sql + "order by \"Year\"", args)
+    #print(cur.mogrify(sql + " order by \"Year\"",(desc_search)))
+    cur.execute(sql,where_search)
+    cur.query
     rows = cur.fetchall()
     window['-TABLE-'].Update(values=rows)
     con.commit()
@@ -51,7 +77,9 @@ def search():
 con = psycopg2.connect(
     database = "Ornaments",
     user = "postgres",
-    password = "Erj020912"
+    password = "Erj020912",
+    host = "192.168.4.28",
+    port = "5432"
 )
 
 #build delete pop up function
@@ -76,7 +104,9 @@ def delete_records():
     con = psycopg2.connect(
     database = "Ornaments",
     user = "postgres",
-    password = "Erj020912"
+    password = "Erj020912",
+    host = "192.168..4.28",
+    port = "5432"
     )
 
     cur = con.cursor()
@@ -85,7 +115,7 @@ def delete_records():
     for num in values['-TABLE-']:
         row_index = num 
     # Returns nested list of all Table rows
-    all_table_vals = window.element('-TABLE-').get()
+    all_table_vals = window.Element('-TABLE-').get()
 
         # Index the selected row 
     selected_row = all_table_vals[row_index]
@@ -111,7 +141,9 @@ def update_records():
     con = psycopg2.connect(
     database = "Ornaments",
     user = "postgres",
-    password = "Erj020912"
+    password = "Erj020912",
+    host = "192.168.4.28",
+    port = "5432"
     )
 
     cur = con.cursor()
@@ -120,7 +152,7 @@ def update_records():
     for num in values['-TABLE-']:
         row_index = num 
     # Returns nested list of all Table rows
-    all_table_vals = window.element('-TABLE-').get()
+    all_table_vals = window.Element('-TABLE-').get()
 
         # Index the selected row 
     selected_row = all_table_vals[row_index]
@@ -174,7 +206,9 @@ def update_records():
 con = psycopg2.connect(
     database = "Ornaments",
     user = "postgres",
-    password = "Erj020912"
+    password = "Erj020912",
+    host = "192.168.4.28",
+    port = "5432"
 )
 
 cur = con.cursor()
@@ -188,13 +222,13 @@ cur.execute(current_sql_statement)
 
 rows = cur.fetchall()
 
-upc = ui.InputText(default_text="12 digit UPC Code",justification='r', text_color='grey', background_color='white',size=(25,1)#, key='-IN-'
+upc = ui.InputText(justification='r', text_color='grey', background_color='white',size=(25,1)#, key='-IN-'
 )
-series = ui.InputText(default_text="Ornament Series", justification='r', text_color='grey',background_color='white',size=(25,1))
-year = ui.InputText(default_text="Year ornament was released", justification='r', text_color='grey', background_color='white',size=(25,1))
-description = ui.InputText(default_text="Ornament Description(From Box)", justification='r', text_color='grey',background_color='white',size=(25,1))
-quantity = ui.InputText(default_text="Quantity owned", justification='r', text_color='grey',background_color='white',size=(25,1))
-notes = ui.InputText(default_text="Anything of note about the ornament(ie:missing or broken pieces)", justification='r', text_color='grey',background_color='white',size=(50,3))
+series = ui.InputText(justification='r', text_color='grey',background_color='white',size=(25,1))
+year = ui.InputText(justification='r', text_color='grey', background_color='white',size=(25,1))
+description = ui.InputText(justification='r', text_color='grey',background_color='white',size=(25,1))
+quantity = ui.InputText(justification='r', text_color='grey',background_color='white',size=(25,1))
+notes = ui.InputText(justification='r', text_color='grey',background_color='white',size=(50,3))
 
 #for r in rows:
 #    print(f"SKU {r[0]} Description {r[1]}")
@@ -224,10 +258,10 @@ data = ("UPC")
 headings = ['UPC','Series','Year','Description','Quantity','Notes']
 layout = [[ui.Column(col_1), ui.Column(col_2)],
            # [ui.Listbox(values=new_rows, size=(80,20))],
-           [ui.Table(values=rows, headings=headings,col_widths=[15,15,5,50,10,50],def_col_width=20,justification='center',auto_size_columns=False,num_rows=40,key='-TABLE-')],
+           [ui.Table(values=rows, headings=headings,col_widths=[15,15,5,50,10,50],def_col_width=20,justification='center',auto_size_columns=False,num_rows=10,key='-TABLE-')],
             [ui.Button("Add"), ui.Button("Delete"), ui.Button("Update"), ui.Button("Search"), ui.Button("Exit")]]
 # Create the window
-window = ui.Window('Ornament Tracker', layout, finalize=True, size=(1400,1000))
+window = ui.Window('Ornament Tracker', layout, finalize=True, size=(1200,700))
 
 window.bind('<FocusIn>', '+FOCUS IN+')
 # Create an event loop
