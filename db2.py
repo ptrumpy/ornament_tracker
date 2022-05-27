@@ -82,42 +82,6 @@ def delete_popup(title, text):
           return
 
 
-#build delete function
-# def delete_records():
-#     con = psycopg2.connect(
-#     database = "Ornaments",
-#     user = "postgres",
-#     password = "Erj020912",
-#     host = "192.168..4.28",
-#     port = "5432"
-#     )
-#
-#     cur = con.cursor()
-#
-#     row_index = 0
-#     for num in values['-TABLE-']:
-#         row_index = num
-#     # Returns nested list of all Table rows
-#     all_table_vals = window.Element('-TABLE-').get()
-#
-#         # Index the selected row
-#     selected_row = all_table_vals[row_index]
-#     #print(selected_row)
-#
-#     # [0] to Index the goal_name of my selected Row
-#     upc_to_delete = selected_row[0]
-#     sure = 'Are you sure you want to delete UPC ' + upc_to_delete
-#     delete_popup('Delete Record', sure)
-#     sql = "Delete from Ornaments where \"upc_code\" = '" + upc_to_delete + "'"
-#     #print(sql)
-#     cur.execute(sql)
-#
-#     cur.execute(current_sql_statement, current_args)
-#     rows = cur.fetchall()
-#     window['-TABLE-'].Update(values=rows)
-#
-#     con.commit()
-#     con.close
 
 #build update function
 # def update_records():
@@ -223,10 +187,10 @@ data = ("UPC")
 headings = ['UPC','Series','Year','Description','Quantity','Notes']
 layout = [[ui.Column(col_1), ui.Column(col_2)],
            # [ui.Listbox(values=new_rows, size=(80,20))],
-           [ui.Table(values=rows, headings=headings,col_widths=[15,15,5,50,10,50],def_col_width=20,justification='center',auto_size_columns=False,num_rows=10,key='-TABLE-')],
+           [ui.Table(values=rows, headings=headings,col_widths=[15,15,5,50,10,50],def_col_width=20,justification='center',auto_size_columns=False,num_rows=40,key='-TABLE-')],
             [ui.Button("Add"), ui.Button("Delete"), ui.Button("Update"), ui.Button("Search"), ui.Button("Exit")]]
 # Create the window
-window = ui.Window('Ornament Tracker', layout, finalize=True, size=(1200,700))
+window = ui.Window('Ornament Tracker', layout, finalize=True, size=(1200,1000))
 
 window.bind('<FocusIn>', '+FOCUS IN+')
 # Create an event loop
@@ -261,7 +225,30 @@ while True:
         rows = database.initial_data()
         window['-TABLE-'].Update(values=rows)
     if event == 'Update':
-        update_records()
+        row_index = 0
+        for num in values['-TABLE-']:
+            row_index = num
+        all_table_vals = window.Element('-TABLE-').get()
+        selected_row = all_table_vals[row_index]
+        print(selected_row)
+        upc_to_update = selected_row[0]
 
+        #get all values needing to be updated
+        #dict to hold columns and calues to be updated
+        upd = {}
+        if year.get() !="":
+            upd['year']= year.get()
+        if series.get() !="":
+            upd['series']= series.get()
+        if description.get() !="":
+            upd['description']= description.get()
+        if quantity.get() !="":
+            upd['qty']= quantity.get()
+        if notes.get() !="":
+            upd['notes']= notes.get()
+        print(upd)
+        database.update_records(upc_to_update,upd)
+        rows = database.initial_data()
+        window['-TABLE-'].Update(values=rows)
 
 window.close()

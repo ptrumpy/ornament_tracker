@@ -34,11 +34,18 @@ def delete_records(upc):
     pool.putconn(con)
 
 #update records
-def update_records(series, year, desc, qty, notes):
+def update_records(upc,upd):
     con = pool.getconn()
     cur = con.cursor()
-    query = sql.SQL("update {table} set {field1} = %s, {field2} = %s,{field3} = %s"
-    ",{field4}= %s,{field5}=%s where {field6} = %s").format(table=sql.Identifier('ornaments'),
-    field1=sql.Identifier('series'),field2=sql.Identifier('year'))
+    query = sql.SQL("update {table} set {data} where upc_code = {upc_code}").format(
+        table=sql.Identifier('ornaments'),
+        data= sql.SQL(',').join(
+            sql.Composed([sql.Identifier(k),sql.SQL(" = "), sql.Placeholder(k)]) for k in upd.keys()
+            ),
+        upc_code=sql.Placeholder('upc_code')
+        )
+    upd.update(upc_code=upc)
+    print(query.as_string(con))
+    cur.execute(query,upd)
     con.commit()
     pool.putconn(con)
