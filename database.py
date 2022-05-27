@@ -49,3 +49,16 @@ def update_records(upc,upd):
     cur.execute(query,upd)
     con.commit()
     pool.putconn(con)
+
+def populate_series_dropdown():
+    con = pool.getconn()
+    cur = con.cursor()
+    query = sql.SQL("select distinct {field1} from {table} order by {field2}").format(
+        field1 = sql.Identifier('series'),table= sql.Identifier('ornaments'),
+        field2 = sql.Identifier('series')
+    )
+    cur.execute(query)
+    series_list = cur.fetchall()
+    pool.putconn(con)
+
+    return series_list

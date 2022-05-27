@@ -81,82 +81,11 @@ def delete_popup(title, text):
           window.close()
           return
 
-
-
-#build update function
-# def update_records():
-#     con = psycopg2.connect(
-#     database = "Ornaments",
-#     user = "postgres",
-#     password = "Erj020912",
-#     host = "192.168.4.28",
-#     port = "5432"
-#     )
-#
-#     cur = con.cursor()
-#
-#     row_index = 0
-#     for num in values['-TABLE-']:
-#         row_index = num
-#     # Returns nested list of all Table rows
-#     all_table_vals = window.Element('-TABLE-').get()
-#
-#         # Index the selected row
-#     selected_row = all_table_vals[row_index]
-#     #print(selected_row)
-#
-#     # [0] to Index the goal_name of my selected Row
-#     upc_to_update = selected_row[0]
-#     if year.get() =="":
-#         year_sql = ""
-#     else:
-#         year_sql = "\"Year\" = {}".format(year.get())
-#
-#     if series.get() =="":
-#         series_sql = ""
-#     else:
-#         series_sql = ",\"Series\" = %s",(series.get())
-#
-#     if description.get() =="":
-#         description_sql = ""
-#     else:
-#         description_sql = ",\"Description\" = {}".format(description.get())
-#
-#     if quantity.get() =="":
-#         quantity_sql = ""
-#     else:
-#         quantity_sql = ",\"Quantity\" = {}".format(quantity.get())
-#     print(quantity_sql)
-#
-#     if notes.get() =="":
-#         notes_sql = ""
-#     else:
-#         notes_sql = ",\"Notes\" = %s",(notes.get())
-#
-#     sql = "Update Ornaments "
-#     set_sql = year_sql + series_sql + description_sql + quantity_sql + notes_sql
-#     set_sql = set_sql.lstrip(',')
-#     print(set_sql)
-#     set_sql = "set " + set_sql
-#     where_sql =  " where \"upc_code\" = '" + upc_to_update + "'"
-#     print(sql + set_sql + where_sql)
-#     cur.execute(sql + set_sql + where_sql)
-#
-#     cur.execute(current_sql_statement, current_args)
-#     rows = cur.fetchall()
-#     window['-TABLE-'].Update(values=rows)
-#
-#     con.commit()
-#     con.close
-
-
-
-
 rows = database.initial_data()
 
 upc = ui.InputText(justification='r', text_color='grey', background_color='white',size=(25,1)#, key='-IN-'
 )
-series = ui.InputText(justification='r', text_color='grey',background_color='white',size=(25,1))
+series = ui.Combo(values=database.populate_series_dropdown(),text_color='grey',background_color='white',size=(25,1),default_value='Star Wars')
 year = ui.InputText(justification='r', text_color='grey', background_color='white',size=(25,1))
 description = ui.InputText(justification='r', text_color='grey',background_color='white',size=(25,1))
 quantity = ui.InputText(justification='r', text_color='grey',background_color='white',size=(25,1))
@@ -168,7 +97,7 @@ notes = ui.InputText(justification='r', text_color='grey',background_color='whit
 
 #form = ui.FlexForm("Ornament Tracker", auto_size_text=True, size=(1200,1200))
 col_1 = [[ui.Text("UPC Code", justification='l')],
-          [ui.Text("Series", justification='l')],
+          [ui.Text("Series",justification='l')],
           [ui.Text("Year", justification='l')],
           [ui.Text("Description", justification='l')],
           [ui.Text("Quantity", justification='l')],
