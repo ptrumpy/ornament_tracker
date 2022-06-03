@@ -65,6 +65,13 @@ import database
 #     port = "5432"
 # )
 #
+
+#check input function to check which fields to update or search_sql
+def check_field(field):
+    if field !="":
+        return True
+
+
 #build delete pop up function
 def delete_popup(title, text):
     window = ui.Window(title,
@@ -138,7 +145,21 @@ while True:
         rows = database.initial_data()
         window['-TABLE-'].Update(values=rows)
     if event == 'Search':
-        search()
+        search = {}
+        search_like = {}
+        if check_field(year.get()):
+            search['year']= year.get()
+        if check_field(series.get()):
+            search['series']= series.get()
+        if check_field(description.get()):
+            search_like['description']= "%" + description.get() + "%"
+        if check_field(quantity.get()):
+            search['qty']= quantity.get()
+        if check_field(notes.get()):
+            search_like['notes']= "%" + notes.get() + "%"
+        #print(search_like)
+        rows = database.search_records(search, search_like)
+        window['-TABLE-'].Update(values=rows)
     if event == 'Delete':
         row_index = 0
         for num in values['-TABLE-']:
@@ -165,17 +186,17 @@ while True:
         #get all values needing to be updated
         #dict to hold columns and calues to be updated
         upd = {}
-        if year.get() !="":
+        if check_field(year.get()):
             upd['year']= year.get()
-        if series.get() !="":
+        if check_field(series.get()):
             upd['series']= series.get()
-        if description.get() !="":
+        if check_field(description.get()):
             upd['description']= description.get()
-        if quantity.get() !="":
+        if check_field(quantity.get()):
             upd['qty']= quantity.get()
-        if notes.get() !="":
+        if check_field(notes.get()):
             upd['notes']= notes.get()
-        print(upd)
+        #print(upd)
         database.update_records(upc_to_update,upd)
         rows = database.initial_data()
         window['-TABLE-'].Update(values=rows)
