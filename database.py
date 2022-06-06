@@ -69,13 +69,17 @@ def search_records(search, search_like):
         data= sql.SQL(' and ').join(
             sql.Composed([sql.Identifier(k),sql.SQL(' = '), sql.Placeholder(k)]) for k in search.keys())
         )
-
     query = (cur.mogrify(query,search).decode('utf-8'))
-    query2 = sql.SQL("and lower({data2}").format(
-        data2 = sql.SQL(' and ' ).join(
-        sql.Composed([(sql.Identifier(j)),sql.SQL(') like '), sql.Placeholder(j)]) for j in search_like.keys())
-    )
-
+    if len(search_like)==2:
+        query2 = sql.SQL("and lower({data2}").format(
+            data2 = sql.SQL(' and lower(' ).join(
+            sql.Composed([(sql.Identifier(j)),sql.SQL(') like '), sql.Placeholder(j)]) for j in search_like.keys())
+            )
+    elif len(search_like)==1:
+        query2 = sql.SQL("and lower({data2}").format(
+            data2 = sql.SQL(' and ' ).join(
+            sql.Composed([(sql.Identifier(j)),sql.SQL(') like '), sql.Placeholder(j)]) for j in search_like.keys())
+            )
     query2 = cur.mogrify(query2,search_like).decode('utf-8')
     cur.execute(query + query2)
     rows = cur.fetchall()
